@@ -4,29 +4,58 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
-    <title>Walnut Grid Test</title>
+    
+    <script>
+      // РЕГИСТРИРУЕМ КОМПОНЕНТ "ТОЛЬКО ОДИН ВИДИМЫЙ"
+      AFRAME.registerComponent('show-only-one', {
+        init: function () {
+          // Находим все цели (орехи) в сцене
+          const targets = document.querySelectorAll('[mindar-image-target]');
+          
+          targets.forEach(target => {
+            // Когда какой-то орех найден...
+            target.addEventListener("targetFound", () => {
+              // ...мы пробегаем по ВСЕМ остальным орехам
+              targets.forEach(otherTarget => {
+                if (otherTarget !== target) {
+                  // И скрываем их контент (внутреннюю 3D модель)
+                  otherTarget.object3D.visible = false; 
+                }
+              });
+              // А текущий делаем видимым (на всякий случай)
+              target.object3D.visible = true;
+            });
+          });
+        }
+      });
+    </script>
+
+    <title>Walnut One-at-a-Time</title>
   </head>
   <body>
-    <a-scene mindar-image="imageTargetSrc: ./targets.mind; maxTrack: 2" 
+    <a-scene mindar-image="imageTargetSrc: ./targets.mind; maxTrack: 4" 
              color-space="sRGB" 
              renderer="colorManagement: true, physicallyCorrectLights" 
              vr-mode-ui="enabled: false" 
-             device-orientation-permission-ui="enabled: false">
-
-      <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+             device-orientation-permission-ui="enabled: false"
+             show-only-one> <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
       <a-entity mindar-image-target="targetIndex: 0">
-        <a-sphere color="#FFD700" opacity="0.9" radius="0.5"></a-sphere>
-        <a-text value="Secret #1" align="center" position="0 0 0.6" scale="1.5 1.5 1.5"></a-text>
+        <a-entity class="content">
+            <a-sphere color="#FFD700" opacity="0.9" radius="0.5"></a-sphere>
+        </a-entity>
       </a-entity>
 
       <a-entity mindar-image-target="targetIndex: 1">
-        <a-box color="#00FFFF" opacity="0.8" position="0 0 0" animation="property: rotation; to: 0 360 0; loop: true; dur: 3000"></a-box>
-        <a-text value="Magic Energy" align="center" position="0 0 0.6" scale="1.5 1.5 1.5"></a-text>
+        <a-entity class="content">
+            <a-box color="#00FFFF" opacity="0.8"></a-box>
+        </a-entity>
       </a-entity>
-
+      
       <a-entity mindar-image-target="targetIndex: 2">
-         <a-torus color="#FF0000" radius="0.4" radius-tubular="0.05" animation="property: rotation; to: 360 0 0; loop: true; dur: 2000"></a-torus>
+        <a-entity class="content">
+            <a-torus color="#FF0000" radius="0.4" radius-tubular="0.05"></a-torus>
+        </a-entity>
       </a-entity>
 
     </a-scene>
